@@ -1,3 +1,19 @@
 .reveal p {
     text-align: left;
 }
+.speaker-controls-notes .value {line-height:1.0;font-size:1.0em !important;}
+
+.paired {
+    float:left !important;
+    max-width:47% !important;
+                   
+}
+
+blockquote.paired {
+    float:left;
+    max-width:47%;
+}
+ul.paired {
+    float:left !important ;
+    max-width:47% !important;
+}
