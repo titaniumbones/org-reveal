@@ -638,7 +638,7 @@ dependencies: [
           (mapconcat 'identity total-codes ",\n"))
         "]\n"
         )
-       "\n")
+       )
      "});\n</script>\n")))
 
 (defun org-reveal-toc (depth info)
@@ -739,7 +739,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
     (case (intern key)
       (REVEAL (org-reveal-parse-keyword-value value))
       (REVEAL_HTML value))))
-(defun org-reveal-embedded-svg (link)
+(defun org-reveal-embedded-svg (path)
   "Embed the SVG content into Reveal HTML."
   (with-temp-buffer
     (insert-file-contents-literally path)
@@ -747,38 +747,57 @@ CONTENTS is nil. INFO is a plist holding contextual information."
           (end (re-search-forward "<[ \t\n]*/svg[ \t\n]*>")))
       (concat "<svg " (buffer-substring-no-properties start end)))))
 
-(defun org-reveal--format-image-data-uri (link info)
+(defun org-reveal--format-image-data-uri (link path info)
   "Generate the data URI for the image referenced by LINK."
-  (let* ((path (org-element-property :path link))
-         (ext (downcase (file-name-extension path))))
+  (let* ((ext (downcase (file-name-extension path))))
+    (message "link=%s" link)
     (if (string= ext "svg")
-        (org-reveal-embedded-svg link)
+        (org-reveal-embedded-svg path)
       (org-html-close-tag
        "img"
        (org-html--make-attribute-string
-        (list :src
-              (concat
-               "data:image/"
-               ;; Image type
-               (downcase (file-name-extension path))
-               ";base64,"
-               ;; Base64 content
-               (with-temp-buffer
-                 (insert-file-contents-literally path)
-                 (base64-encode-region 1 (point-max))
-                 (buffer-string)))))
+        (org-combine-plists
+         (list :src
+               (concat
+                "data:image/"
+                ;; Image type
+                ext
+                ";base64,"
+                ;; Base64 content
+                (with-temp-buffer
+                  (insert-file-contents-literally path)
+                  (base64-encode-region 1 (point-max))
+                  (buffer-string))))
+         ;; Get attribute list from parent element
+         ;; Copied from ox-html.el
+         (let* ((parent (org-export-get-parent-element link))
+                (link (let ((container (org-export-get-parent link)))
+                        (if (and (eq (org-element-type container) 'link)
+                                 (org-html-inline-image-p link info))
+                            container
+                          link))))
+           (and (eq (org-element-map parent 'link 'identity info t) link)
+                (org-export-read-attribute :attr_html parent)))))
        info))))
 
 (defun org-reveal-link (link desc info)
   "Transcode a LINK object from Org to Reveal. The result is
   identical to ox-html expect for image links. When `org-reveal-single-file' is t,
 the result is the Data URIs of the referenced image."
-  (if (and (plist-get info :reveal-single-file)
-           (plist-get info :html-inline-images)
-           (org-export-inline-image-p link (plist-get info :html-inline-image-rules)))
-      ;; Export image data URIs.
-      (org-reveal--format-image-data-uri link info)
-    (org-html-link link desc info)))
+  (let* ((want-embed-image (and (plist-get info :reveal-single-file)
+                                (plist-get info :html-inline-images)
+                                (org-export-inline-image-p
+                                 link (plist-get info :html-inline-image-rules))))
+         (raw-path (org-element-property :path link))
+         (clean-path (replace-regexp-in-string "^file:///" "" raw-path))
+         (can-embed-image (and want-embed-image
+                               (file-readable-p clean-path))))
+    (if can-embed-image
+        (org-reveal--format-image-data-uri link clean-path info)
+      (if want-embed-image
+          (error "Cannot embed image %s" raw-path)
+        (replace-regexp-in-string "<a href=\"#" "<a href=\"#/slide-"
+                                  (org-html-link link desc info))))))
 
 (defun org-reveal-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to Reveal.
@@ -840,8 +859,7 @@ contextual information."
            (frag (org-export-read-attribute :attr_reveal src-block :frag))
            (label (let ((lbl (org-element-property :name src-block)))
                     (if (not lbl) ""
-                      (format " id=\"%s\""
-                              (org-export-solidify-link-text lbl))))))
+                      (format " id=\"%s\"" lbl)))))
       (if (not lang)
           (format "<pre %s%s>\n%s</pre>"
                   (or (frag-class frag info) " class=\"example\"")
@@ -875,8 +893,7 @@ contextual information."
 contents is the transcoded contents string.
 info is a plist holding export options."
   (concat
-   (format "<?xml version=\"1.0\" encoding=\"utf-8\"?>
-<!DOCTYPE html>\n<html%s>\n<head>\n"
+   (format "<!DOCTYPE html>\n<html%s>\n<head>\n"
            (if-format " lang=\"%s\"" (plist-get info :language)))
    "<meta charset=\"utf-8\"/>\n"
    (if-format "<title>%s</title>\n" (org-export-data (plist-get info :title) info))
@@ -1006,7 +1023,7 @@ is the property list for the given project.  PUB-DIR is the
 publishing directory.
 
 Return output file name."
-  (org-publish-org-to 'reval filename ".html" plist pub-dir))
+  (org-publish-org-to 'reveal filename ".html" plist pub-dir))
 
 
 (provide 'ox-reveal)
