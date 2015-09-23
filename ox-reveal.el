@@ -63,7 +63,7 @@
     (:reveal-extra-js "REVEAL_EXTRA_JS" nil org-reveal-extra-js nil)
     (:reveal-hlevel "REVEAL_HLEVEL" nil nil t)
     (:reveal-title-slide nil "reveal_title_slide" org-reveal-title-slide t)
-    (:reveal-title-slide-template "REVEAL_TITLE_SLIDE_TEMPLATE" nil org-reveal-title-slide-template t)
+    (:reveal-title-slide-template "REVEAL_TITLE_SLIDE_TEMPLATE" nil org-reveal-title-slide-template space)
     (:reveal-title-slide-background "REVEAL_TITLE_SLIDE_BACKGROUND" nil nil t)
     (:reveal-title-slide-background-size "REVEAL_TITLE_SLIDE_BACKGROUND_SIZE" nil nil t)
     (:reveal-title-slide-background-repeat "REVEAL_TITLE_SLIDE_BACKGROUND_REPEAT" nil nil t)
@@ -320,6 +320,18 @@ can contain the following escaping elements:
   :group 'org-export-reveal
   :type 'boolean)
 
+(defcustom org-reveal-note-key-char "n"
+  "If not nil, org-reveal-note-key-char's value is registered as
+  the key character to Org-mode's structure completion for
+  Reveal.js notes. When `<' followed by the key character are
+  typed and then the completion key is pressed, which is usually
+  `TAB', \"#+BEGIN_NOTES\" and \"#+END_NOTES\" is inserted.
+
+  The default value is \"n\". Set the variable to nil to disable
+  registering the completion"
+  :group 'org-export-reveal
+  :type 'string)
+
 (defun if-format (fmt val)
   (if val (format fmt val) ""))
 
@@ -433,6 +445,12 @@ holding contextual information."
     (insert-file-contents-literally file)
     (buffer-string)))
 
+(defun org-reveal--file-url-to-path (url)
+  "Convert URL that points to local files to file path."
+  (replace-regexp-in-string
+   (if (string-equal system-type "windows-nt") "^file:///" "^file://")
+   "" url))
+
 (defun org-reveal-stylesheets (info)
   "Return the HTML contents for declaring reveal stylesheets
 using custom variable `org-reveal-root'."
@@ -441,7 +459,7 @@ using custom variable `org-reveal-root'."
          (theme (plist-get info :reveal-theme))
          (theme-css (concat root-path "css/theme/" theme ".css"))
          ;; Local file names.
-         (local-root (replace-regexp-in-string "^file:///" "" root-path))
+         (local-root (org-reveal--file-url-to-path root-path))
          (local-reveal-css (concat local-root "css/reveal.css"))
          (local-theme-css (concat local-root "css/theme/" theme ".css"))
          (in-single-file (plist-get info :reveal-single-file)))
@@ -500,7 +518,7 @@ custom variable `org-reveal-root'."
          (head-min-js (concat root-path "lib/js/head.min.js"))
          (reveal-js (concat root-path "js/reveal.js"))
          ;; Local files
-         (local-root-path (replace-regexp-in-string "^file:///" "" root-path))
+         (local-root-path (org-reveal--file-url-to-path root-path))
          (local-head-min-js (concat local-root-path "lib/js/head.min.js"))
          (local-reveal-js (concat local-root-path "js/reveal.js"))
          (in-single-file (plist-get info :reveal-single-file)))
@@ -604,8 +622,7 @@ dependencies: [
 "
         ;; JS libraries
         (let* ((builtins
-                '(classList
-                  (format " { src: '%slib/js/classList.js', condition: function() { return !document.body.classList; } }" root-path)
+                '(classList (format " { src: '%slib/js/classList.js', condition: function() { return !document.body.classList; } }" root-path)
                   markdown (format " { src: '%splugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
  { src: '%splugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } }" root-path root-path)
                   highlight (format " { src: '%splugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }" root-path)
@@ -789,7 +806,7 @@ the result is the Data URIs of the referenced image."
                                 (org-export-inline-image-p
                                  link (plist-get info :html-inline-image-rules))))
          (raw-path (org-element-property :path link))
-         (clean-path (replace-regexp-in-string "^file:///" "" raw-path))
+         (clean-path (org-reveal--file-url-to-path raw-path))
          (can-embed-image (and want-embed-image
                                (file-readable-p clean-path))))
     (if can-embed-image
@@ -1025,6 +1042,10 @@ publishing directory.
 Return output file name."
   (org-publish-org-to 'reveal filename ".html" plist pub-dir))
 
+;; Register auto-completion for speaker notes.
+(when org-reveal-note-key-char
+  (add-to-list 'org-structure-template-alist
+               (list org-reveal-note-key-char "#+BEGIN_NOTES\n\?\n#+END_NOTES")))
 
 (provide 'ox-reveal)
 
