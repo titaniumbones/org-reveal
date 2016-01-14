@@ -3,7 +3,7 @@
 #+Email: yjwen.ty@gmail.com
 
 #+OPTIONS: reveal_center:t reveal_progress:t reveal_history:nil reveal_control:t
-#+OPTIONS: reveal_mathjax:t reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
+#+OPTIONS: reveal_rolling_links:t reveal_keyboard:t reveal_overview:t num:nil
 #+OPTIONS: reveal_width:1200 reveal_height:800
 #+OPTIONS: toc:1
 #+REVEAL_MARGIN: 0.1
@@ -14,8 +14,11 @@
 #+REVEAL_HLEVEL: 2
 #+REVEAL_HEAD_PREAMBLE: <meta name="description" content="Org-Reveal Introduction.">
 #+REVEAL_POSTAMBLE: <p> Created by yjwen. </p>
-#+REVEAL_PLUGINS: (highlight markdown notes)
+#+REVEAL_PLUGINS: (markdown notes)
 #+REVEAL_EXTRA_CSS: ./local.css
+
+[[http://melpa.org/#/ox-reveal][file:http://melpa.org/packages/ox-reveal-badge.svg]]
+[[http://www.gnu.org/licenses/gpl-3.0.html][http://img.shields.io/:license-gpl3-blue.svg]]
 
 * Reveal.js and Org-Reveal
 
@@ -105,15 +108,15 @@ $ git clone https://github.com/yjwen/org-reveal.git
    on this standard please refer to
    [[http://en.wikipedia.org/wiki/File_URI_scheme]]
 
-#+BEGIN_SRC org
-,#+REVEAL_ROOT: file:///d:/reveal.js
-#+END_SRC
+   #+BEGIN_SRC org
+   ,#+REVEAL_ROOT: file:///d:/reveal.js
+   #+END_SRC
 
    Set your =REVEAL_ROOT= to the following URL to download reveal.js from
    a CDN instead of downloading a local copy.
 
    #+BEGIN_SRC org
-   ,#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/2.5.0/
+   ,#+REVEAL_ROOT: http://cdn.jsdelivr.net/reveal.js/3.0.0/
    #+END_SRC
 
 
@@ -143,7 +146,7 @@ $ git clone https://github.com/yjwen/org-reveal.git
    horizontally. Deeper headings are mapped to vertical slides below their
    parent level 1 heading.
 
-*** HLevel's Affects on Slides Layout
+*** HLevel's Effects on Slides Layout
 
     Assume we have a simple Org file as below:
 #+BEGIN_SRC org
@@ -175,7 +178,7 @@ $ git clone https://github.com/yjwen/org-reveal.git
 
     * Setting Org files local HLevel to option =REVEAL_HLEVEL=.
 #+BEGIN_SRC org
-,#+REVEAL_HLEVEL 2
+,#+REVEAL_HLEVEL: 2
 #+END_SRC
 
 ** Force Split
@@ -284,7 +287,18 @@ $ git clone https://github.com/yjwen/org-reveal.git
         ratio.
 
 ** Slide Numbering
-   Activate slide numbers by setting =#+REVEAL_SLIDE_NUMBER:= to =t= (true).
+
+   By default, a flatten slide number is showed at the lower-right corner of each slide.
+
+   To disable slide numbering, please add ~reveal_slide_number:nil~ to
+   ~#+OPTIONS:~ line.
+
+   From Reveal.js 3.1.0, slide numbering can have several custom
+   formats. To choose one format, please set ~reveal_slide_number~ to
+   its proper string. For example, ~reveal_slide_number:h/v~.
+   
+   Supported format string can be found in [[https://github.com/hakimel/reveal.js/#slide-number][Reveal.js manual]].
+   
 
 ** Slide Header/Footer
    Specify Slide header/footer by =#+REVEAL_SLIDE_HEADER:= and
@@ -421,21 +435,39 @@ $ git clone https://github.com/yjwen/org-reveal.git
       =org-reveal-history=, =org-reveal-center=, =org-reveal-rolling-links=, =org-reveal-keyboard=, =org-reveal-overview=
 
     For an example, please refer to the heading part of this document.
-** Source Codes
+** Highlight Source Code
 
-   Org-reveal use Org-Babel to highlight source codes.
+   There are two ways to highlight source code.
+   1. Use your Emacs theme
+   2. Use highlight.js
 
-   Codes copied from [[http://www.haskell.org/haskellwiki/The_Fibonacci_sequence][Haskell Wiki]].
-#+BEGIN_SRC haskell
+      
+   To Use your Emacs theme, please make sure ~htmlize.el~ is
+   installed. Then no more setup is necessary.  
 
-fibs = 0 : 1 : next fibs
+   Below is an example. Codes are copied from [[http://www.haskell.org/haskellwiki/The_Fibonacci_sequence][Haskell Wiki]].
+   #+BEGIN_SRC haskell
+   fibs = 0 : 1 : next fibs
        where next (a : t@(b:_)) = (a+b) : next t
-#+END_SRC
+   #+END_SRC
 
    If you saw odd indentation, please set variable =org-html-indent=
    to =nil= and export again.
 
-   If code is not highlighted, please make sure =htmlize.el= is installed.
+*** Using highlight.js
+
+    You can also use [[http://hightlightjs.org][highlight.js]], by adding ~highlight~ to the Reveal.js
+    plugin list. 
+    #+BEGIN_SRC org
+      ,#+REVEAL_PLUGINS: (highlight)
+    #+END_SRC
+
+    The default highlighting theme is ~zenburn.css~ brought with
+    Reveal.js. To use other themes, please specify the CSS file name by
+    ~#+REVEAL_HIGHLIGHT_CSS~ or the variable ~org-reveal-highlight-css~.
+    
+    The "%r" in the given CSS file name will be replaced by Reveal.js'
+    URL.
 
 ** MathJax
   :PROPERTIES:
@@ -448,13 +480,13 @@ fibs = 0 : 1 : next fibs
    LateX equation are rendered in native HTML5 contents.
 
    *IMPORTANT*: Displaying equations requires internet connection to
-   [[http://mathjax.org/][mathjax.org]] or local MathJax installation.
-
-   *IMPORTANT 2*: MathJax is disabled by default to reduce internet
-   traffic. Set =#+OPTIONS= tag =reveal_mathjax= or variable
-   =org-reveal-mathjax= to true to enable it. For local MathJax
+   [[http://mathjax.org/][mathjax.org]] or local MathJax installation. For local MathJax
    installation, set option =REVEAL_MATHJAX_URL= to the URL pointing
    to the local MathJax location.
+
+   *Note*: Option ~reveal_mathjax~ is obsolete now. Org-reveal
+   exports necessary MathJax configurations when there is Latex
+   equation found.
 
 ** Preamble and Postamble
 
@@ -612,6 +644,12 @@ fibs = 0 : 1 : next fibs
    Code highlight by highlight.js is also disabled. But *code
    highlight by Emacs is not effected.*
 
+** Export Current Subtree
+
+  Use menu entry " C-c C-e R S" to export only current subtree,
+  without the title slide and the table of content, for a quick preview
+  of your current edition.
+
 * Tips
 
 ** Disable Heading Numbers
@@ -632,6 +670,12 @@ fibs = 0 : 1 : next fibs
 
    * [[Tips]].
    * [[#my-heading][Heading]] with a =CUSTOM_ID= property.
+
+** Custom JS
+
+   To pass custom JS code to ~Reveal.initialize~, state the code by
+   ~#+REVEAL_INIT_SCRIPT~ (multiple statements are concatenated) or by
+   custom variable ~org-reveal-init-script~.
 
 * Thanks
 
