@@ -226,7 +226,8 @@ can contain the following escaping elements:
   :group 'org-export-reveal
   :type 'boolean)
 
-(defcustom org-reveal-slide-number "c"
+(defcustom org-reveal-slide-number "c / t"
+
   "Reveal showing slide numbers."
   :group 'org-export-reveal
   :type 'string)
