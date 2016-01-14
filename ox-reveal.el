@@ -219,10 +219,10 @@ can contain the following escaping elements:
   :group 'org-export-reveal
   :type 'boolean)
 
-(defcustom org-reveal-slide-number t
+(defcustom org-reveal-slide-number "c / t"
   "Reveal showing slide numbers."
   :group 'org-export-reveal
-  :type 'boolean)
+  :type 'string)
 
 (defcustom org-reveal-keyboard t
   "Reveal use keyboard navigation."

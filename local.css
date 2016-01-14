@@ -17,3 +17,14 @@ ul.paired {
     float:left !important ;
     max-width:47% !important;
 }
+
+span.figure-number {
+    display:none;
+}
+
+.half {
+    height: 50vh;
+    display: block;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
