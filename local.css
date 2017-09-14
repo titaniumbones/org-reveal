@@ -1,3 +1,53 @@
 .reveal p {
     text-align: left;
 }
+
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+    line-height: 1.1;
+}
+
+.reveal h1 {
+    font-size: 2.0em;
+}
+
+.reveal h2 {
+    font-size: 1.6em; }
+
+.reveal h3 {
+    font-size: 1.5em; }
+
+.reveal h4 {
+    font-size: 1em; }
+
+.reveal h1 {
+    text-shadow: none; }
+
+.speaker-controls-notes .value {line-height:1.0;font-size:1.0em !important;}
+
+.paired {
+    float:left !important;
+    max-width:47% !important;
+    
+}
+
+blockquote.paired {
+    float:left;
+    max-width:47%;
+}
+ul.paired {
+    float:left !important ;
+    max-width:47% !important;
+}
+
+span.figure-number {
+    display:none;
+}
+
+.half {
+    height: 50vh;
+    display: block;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+

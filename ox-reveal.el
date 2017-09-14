@@ -932,9 +932,9 @@ the result is the Data URIs of the referenced image."
                                   (org-html-link link desc info))))))
 
 (defun org-reveal-latex-environment (latex-env contents info)
-  "Transcode a LaTeX environment from Org to Reveal.
+  Transcode a LaTeX environment from Org to Reveal.
 
-LATEX-ENV is the Org element. CONTENTS is the contents of the environment. INFO is a plist holding contextual information "
+LATEX-ENV is the Org element. CONTENTS is the contents of the environment. INFO is a plist holding contextual information 
   (setq info (plist-put info :reveal-mathjax t))
   (let ((attrs (org-export-read-attribute :attr_html latex-env)))
     (format "<div%s>\n%s\n</div>\n"
@@ -1018,8 +1018,7 @@ contextual information."
                                ((string= lang "scheme") "selector_eval_scheme")
                                ((string= lang "ruby") "selector_eval_ruby")
                                ((string= lang "html") "selector_eval_html"))
-                         )
-)
+                         ) )
       (if (not lang)
           (format "<pre %s%s>\n%s</pre>"
                   (or (frag-class frag info) " class=\"example\"")
