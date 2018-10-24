@@ -359,7 +359,7 @@ BEFORE the plugins that depend on them."
   :group 'org-export-reveal
   :type 'string)
 
-(defcustom org-reveal-note-key-char "n"
+(defcustom org-reveal-note-key-char "?n"
   "If not nil, org-reveal-note-key-char's value is registered as
   the key character to Org-mode's structure completion for
   Reveal.js notes. When `<' followed by the key character are
@@ -419,7 +419,7 @@ If the block type is 'NOTES', transcode the block into a
 Reveal.js slide note. Otherwise, export the block as by the HTML
 exporter."
   (let ((block-type (org-element-property :type special-block)))
-    (if (string= block-type "NOTES")
+    (if ( or (string= block-type "notes") (string= block-type "NOTES"))
         (format "<aside class=\"notes\">\n%s\n</aside>\n" contents)
       (org-html-special-block special-block contents info))))
 
@@ -1026,7 +1026,7 @@ contextual information."
                   code)
         (if klipsify
             (concat
-             "<iframe style=\"background-color:white;\" height=\"500px\" width= \"100%\" srcdoc='<html><body><pre><code "
+             "<iframe style=\"background-color:white;\" height=\"500px\" width= \"100%\" srcdoc='<html><body><pre class=\"main-container\"><code "
              (if (string= lang "html" )"data-editor-type=\"html\"  "  "") "class=\"klipse\" "code-attribs ">
 " (if (string= lang "html")
       (replace-regexp-in-string "'" "&#39;"
@@ -1041,10 +1041,20 @@ contextual information."
 </code></pre>
 <link rel= \"stylesheet\" type= \"text/css\" href=\"" org-reveal-klipse-css "\">
 <style>
-.CodeMirror { font-size: 2em; }
+// .CodeMirror { font-size: 2em; }
 </style>
 <script>
-window.klipse_settings = { " langselector  ": \".klipse\" };
+window.klipse_settings = { " langselector  ": \".klipse\",
+                              codemirror_options_in: {
+                                 indentUnit: 8,
+                                 lineWrapping: true,
+                                 lineNumbers: true,
+                                 autoCloseBrackets: true
+                                 },
+                             codemirror_options_out: {
+                                 lineWrapping: true,
+                                 lineNumbers: true
+    }};
 </script>
 <script src= \"" org-reveal-klipse-js "\"></script></body></html>
 '>
@@ -1277,9 +1287,10 @@ Return output file name."
   (org-publish-org-to 'reveal filename ".html" plist pub-dir))
 
 ;; Register auto-completion for speaker notes.
-(when org-reveal-note-key-char
-  (add-to-list 'org-structure-template-alist
-               (list org-reveal-note-key-char "#+BEGIN_NOTES\n\?\n#+END_NOTES")))
+;; disabling now b/c of issues w org-tempo
+;; (when org-reveal-note-key-char
+;;   (add-to-list 'org-structure-template-alist
+;;                (cons org-reveal-note-key-char "notes")))
 
 (provide 'ox-reveal)
 
