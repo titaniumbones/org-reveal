@@ -1011,7 +1011,7 @@ contextual information."
                     (if (not lbl) ""
                       (format " id=\"%s\"" lbl))))
            (klipsify  (and  org-reveal-klipsify-src 
-                           (member lang '("javascript" "js" "ruby" "scheme" "clojure" "php" "html"))))
+                           (member lang '("javascript" "js" "ruby" "scheme" "clojure" "php" "python" "html"))))
            (langselector (cond ((or (string= lang "js") (string= lang "javascript")) "selector_eval_js")
                                ((string= lang "clojure") "selector")
                                ((string= lang "python") "selector_eval_python_client")
