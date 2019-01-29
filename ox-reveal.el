@@ -419,8 +419,8 @@ If the block type is 'NOTES', transcode the block into a
 Reveal.js slide note. Otherwise, export the block as by the HTML
 exporter."
   (let ((block-type (org-element-property :type special-block)))
-    (if (string= block-type "NOTES")
-        (format "<aside class=\"notes\">\n%s\n</aside>\n" contents)
+     (if (string= (upcase block-type) "NOTES")
+	 (format "<aside class=\"notes\">\n%s\n</aside>\n" contents)
       (org-html-special-block special-block contents info))))
 
 ;; Copied from org-html-headline and modified to embed org-reveal
